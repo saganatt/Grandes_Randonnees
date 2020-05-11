@@ -1,18 +1,27 @@
+:- dynamic route/1.
+:- dynamic rlength/2.
+:- dynamic uphill/2.
+:- dynamic level/2.
+:- dynamic historic/2.
+:- dynamic attractions/2.
+:- dynamic castles/2.
+:- dynamic region/2.
+:- dynamic goes_abroad/2.
+:- dynamic santiago/2.
+:- dynamic fuzzy/1.
+:- dynamic binary/1.
+:- dynamic multivalued/1.
+:- dynamic mutually_exclusive/4.
+
 main :-
-	greeting,
+	help,
   consult('routes_kb_utils.pl'),
-  open('expert_debug.txt',write,Fd,[alias(debug)]),
 	repeat,
 	write('> '),
 	read(X),
 	do(X),
   help,
-	X == quit,
-  close(Fd).
-
-greeting :-
-	write('This is the native Prolog shell.'), nl,
-	help.
+	X == quit.
 
 do(help) :- help, !.
 do(load) :- load_kb, !.
@@ -56,57 +65,6 @@ load_kb :-
 load_kb :-
   write('Could not load the database.'), nl.
 
-ask(A,N,V) :- ask(A,N,V,[]).
-ask(_,N,V,Hist) :-
-	write(N),
-	write('? (yes or no) '),
-	get_user(V,Hist).
-
-menuask(Name,AskValue,Menu) :- menuask(_,Name,AskValue,Menu).
-menuask(Attribute,Name,AskValue,Menu) :- menuask(Attribute,Name,AskValue,Menu,[]).
-menuask(_,Name,AskValue,Menu,Hist) :-
-	nl,write('What is the value for '),write(Name),write('?'),nl,
-	display_menu(Menu),
-	write('Enter the number of choice: '),
-	get_user(Num,Hist),nl,
-	pick_menu(Num,AskValue,Menu).
-
-display_menu(Menu) :-
-	disp_menu(1,Menu), !.             % make sure we fail on backtracking
-
-disp_menu(_,[]).
-disp_menu(N,[Item | Rest]) :-            % recursively write the head of
-	write(N),write('  : '),write(Item),nl, % the list and disp_menu the tail
-	NN is N + 1,
-	disp_menu(NN,Rest).
-
-pick_menu(N,Val,Menu) :-
-	integer(N),                     % make sure they gave a number
-	pic_menu(1,N,Val,Menu), !.      % start at one
-pick_menu(Val,Val,_).             % if they didn't enter a number, use
-	                                % what they entered as the value
-
-pic_menu(_,_,none_of_the_above,[]).  % if we've exhausted the list
-pic_menu(N,N, Item, [Item|_]).       % the counter matches the number
-pic_menu(Ctr,N, Val, [_|Rest]) :-
-	NextCtr is Ctr + 1,                % try the next one
-	pic_menu(NextCtr, N, Val, Rest).
-
-get_user(X,Hist) :-
-	repeat,
-	write('> '),
-	read(X),
-  process_ans(X,Hist), !.
-
-process_ans(why,Hist) :-
-	write_list(4,Hist), !, fail.
-process_ans(_,_).
-  
-write_list(_,[]).
-write_list(N,[H|T]) :-
-	tab(N),write(H),nl,
-	write_list(N,T).
-
 add_route :-
   write('Enter route name in single quotes: '),
   read(Rname),
@@ -122,10 +80,8 @@ add_route(Rname) :-
   not(route(Rname)),
   write('Enter the length of route in km: '),
   read(Rlength),
-  convert_length(Rlength, Rlength_cat),
   write('Enter elevation difference (the uphill value) in m: '),
   read(Ruphill),
-  convert_uphill(Ruphill, Ruphill_cat),
   what_level(Rlevel),
   if_historic(Rhistoric),
   what_attractions(Rattractions),
@@ -134,8 +90,8 @@ add_route(Rname) :-
   if_goes_abroad(Rabroad),
   if_santiago(Rsantiago),
   assert((route(Rname))),
-  assert((length_cat(Rname, Rlength_cat))),
-  assert((uphill_cat(Rname, Ruphill_cat))),
+  assert((rlength(Rname, Rlength))),
+  assert((uphill(Rname, Ruphill))),
   assert((level(Rname, Rlevel))),
   assert((historic(Rname, Rhistoric))),
   assert((attractions(Rname, Rattractions))),
@@ -149,30 +105,30 @@ delete_route :-
   write('Enter route name in single quotes: '),
   read(Rname),
   retractall(route(Rname)),
-  retractalll(length_cat(Rname, _)),
-  retractalll(uphill_cat(Rname, _)),
-  retractalll(level(Rname, _)),
-  retractalll(historic(Rname, _)),
-  retractalll(attractions(Rname, _)),
-  retractalll(castles(Rname, _)),
-  retractalll(region(Rname, _)),
-  retractalll(goes_abroad(Rname, _)),
-  retractalll(santiago(Rname, _)),
+  retractall(rlength(Rname, _)),
+  retractall(uphill(Rname, _)),
+  retractall(level(Rname, _)),
+  retractall(historic(Rname, _)),
+  retractall(attractions(Rname, _)),
+  retractall(castles(Rname, _)),
+  retractall(region(Rname, _)),
+  retractall(goes_abroad(Rname, _)),
+  retractall(santiago(Rname, _)),
   write('Route deleted.'), nl.
 delete_route :-
   write('Could not delete the route.'),nl.
 
 delete_all_routes :-
   retractall(route(_)),
-  retractalll(length_cat(_, _)),
-  retractalll(uphill_cat(_, _)),
-  retractalll(level(_, _)),
-  retractalll(historic(_, _)),
-  retractalll(attractions(_, _)),
-  retractalll(castles(_, _)),
-  retractalll(region(_, _)),
-  retractalll(goes_abroad(_, _)),
-  retractalll(santiago(_, _)),
+  retractall(rlength(_, _)),
+  retractall(uphill(_, _)),
+  retractall(level(_, _)),
+  retractall(historic(_, _)),
+  retractall(attractions(_, _)),
+  retractall(castles(_, _)),
+  retractall(region(_, _)),
+  retractall(goes_abroad(_, _)),
+  retractall(santiago(_, _)),
   write('Routes deleted.'), nl.
 delete_all_routes :-
   write('Could not delete routes.').
@@ -180,7 +136,7 @@ delete_all_routes :-
 edit_route :-
   write('Enter route name in single quotes: '),
   read(Rname),
-  write('Enter feature to edit: '),
+  write('Enter feature to edit in single quotes: '),
   read(Rattr),
   write('Enter new value: '),
   read(Rvalue),
@@ -192,10 +148,10 @@ edit_route :-
 edit_route :-
   write('Could not edit the route.'),nl.
 
-set_attr('length_cat', Rname, Rvalue) :-
-  assert((length_cat(Rname, Rvalue))).
-set_attr('uphill_cat', Rname, Rvalue) :-
-  assert((uphill_cat(Rname, Rvalue))).
+set_attr('length', Rname, Rvalue) :-
+  assert((rlength(Rname, Rvalue))).
+set_attr('uphill', Rname, Rvalue) :-
+  assert((uphill(Rname, Rvalue))).
 set_attr('level', Rname, Rvalue) :-
   assert((level(Rname, Rvalue))).
 set_attr('historic', Rname, Rvalue) :-
@@ -217,10 +173,10 @@ remove_attr(yes, Rname, Rattr) :-
   remove_attr(Rname, Rattr),
   write('Attribute '), write(Rattr), write(' removed.'), nl.
 remove_attr(_, _, _) :- fail.
-remove_attr(Rname, 'length_cat') :-
-  retractall(length_cat(Rname, _)).
-remove_attr(Rname, 'uphill_cat') :-
-  retractall(uphill_cat(Rname, _)).
+remove_attr(Rname, 'length') :-
+  retractall(rlength(Rname, _)).
+remove_attr(Rname, 'uphill') :-
+  retractall(uphill(Rname, _)).
 remove_attr(Rname, 'level') :-
   retractall(level(Rname, _)).
 remove_attr(Rname, 'historic') :-
@@ -241,29 +197,24 @@ remove_attr(_, _) :-
 save_changes :-
 	open('routes_kb_gen.pl', write, Fdd),
 	nl(Fdd),
-  findall(X, route(X), Rnames),
-  write_routes(Fdd, Rnames),
+  write_routes(Fdd),
 	nl(Fdd),
   close(Fdd).
 save_changes :-
   write('Could not save the database.'), nl.
 
-write_routes(Fdd, [First|Rest]) :-
-  write_route(Fdd, First),
-	write_routes(Fdd, Rest).
-write_routes(_, []).
-
-write_route(Fdd, Rname) :-
-  findall(X, length_cat(Rname, X), Rlengths),
-  findall(X, uphill_cat(Rname, X), Ruphills),
-  findall(X, level(Rname, X), Rlevels),
-  findall(X, historic(Rname, X), Rhistorics),
-  findall(X, attractions(Rname, X), Rattractions),
-  findall(X, castles(Rname, X), Rcastles),
-  findall(X, region(Rname, X), Rregions),
-  findall(X, goes_abroad(Rname, X), Rabroads),
-  findall(X, santiago(Rname, X), Rsantiagos),
-	write(Fdd, 'route('), write(Rname), write(Fdd, ').'), nl(Fdd),
+write_routes(Fdd) :-
+  findall(X, route(X), Rnames),
+  findall([X, Y], rlength(X, Y), Rlengths),
+  findall([X, Y], uphill(X, Y), Ruphills),
+  findall([X, Y], level(X, Y), Rlevels),
+  findall([X, Y], historic(X, Y), Rhistorics),
+  findall([X, Y], attractions(X, Y), Rattractions),
+  findall([X, Y], castles(X, Y), Rcastles),
+  findall([X, Y], region(X, Y), Rregions),
+  findall([X, Y], goes_abroad(X, Y), Rabroads),
+  findall([X, Y], santiago(X, Y), Rsantiagos),
+  write_rnames(Fdd, Rnames),
   write_lengths(Fdd, Rlengths),
   write_uphills(Fdd, Ruphills),
   write_levels(Fdd, Rlevels),
@@ -275,50 +226,86 @@ write_route(Fdd, Rname) :-
   write_santiagos(Fdd, Rsantiagos),
   nl(Fdd).
 
+write_rnames(Fdd, [First|Rest]) :-
+  write(Fdd, 'route('),
+  write_string(Fdd, First),
+  write(Fdd, ')'), nl(Fdd),
+  write_rnames(Fdd, Rest).
+write_rnames(_, []).
+
+write_string(Fdd, Rname) :-
+  write(Fdd, '\''), write(Fdd, Rname), write(Fdd, '\'').
+write_attr(Fdd, Rname, Attr, [Value]) :-
+  write(Fdd, Attr),
+  write(Fdd, '('),
+  write_string(Fdd, Rname),
+  write(Fdd, ', '),
+  write(Fdd, Value),
+  write(Fdd, ').'),
+  nl(Fdd).
+
 write_lengths(Fdd, [First|Rest]) :-
-  write(Fdd, 'length_cat('), write(First), write(Fdd, ').'), nl(Fdd),
+  write_length(Fdd, First),
   write_lengths(Fdd, Rest).
 write_lengths(_, []).
+write_length(Fdd, [Rname|Rlength]) :-
+  write_attr(Fdd, Rname, 'rlength', Rlength).
 
 write_uphills(Fdd, [First|Rest]) :-
-  write(Fdd, 'uphill_cat('), write(First), write(Fdd, ').'), nl(Fdd),
+  write_uphill(Fdd, First),
   write_uphills(Fdd, Rest).
 write_uphills(_, []).
+write_uphill(Fdd, [Rname|Ruphill]) :-
+  write_attr(Fdd, Rname, 'uphill', Ruphill).
 
 write_levels(Fdd, [First|Rest]) :-
-  write(Fdd, 'level('), write(First), write(Fdd, ').'), nl(Fdd),
+  write_level(Fdd, First),
   write_levels(Fdd, Rest).
 write_levels(_, []).
+write_level(Fdd, [Rname|Rlevel]) :-
+  write_attr(Fdd, Rname, 'level', Rlevel).
 
 write_historics(Fdd, [First|Rest]) :-
-  write(Fdd, 'historic('), write(First), write(Fdd, ').'), nl(Fdd),
+  write_historic(Fdd, First),
   write_historics(Fdd, Rest).
 write_historics(_, []).
+write_historic(Fdd, [Rname|Rhistoric]) :-
+  write_attr(Fdd, Rname, 'historic', Rhistoric).
 
 write_attractions(Fdd, [First|Rest]) :-
-  write(Fdd, 'attraction('), write(First), write(Fdd, ').'), nl(Fdd),
+  write_attraction(Fdd, First),
   write_attractions(Fdd, Rest).
 write_attractions(_, []).
+write_attraction(Fdd, [Rname|Rattraction]) :-
+  write_attr(Fdd, Rname, 'attraction', Rattraction).
 
 write_castles(Fdd, [First|Rest]) :-
-  write(Fdd, 'castle('), write(First), write(Fdd, ').'), nl(Fdd),
+  write_castle(Fdd, First),
   write_castles(Fdd, Rest).
 write_castles(_, []).
+write_castle(Fdd, [Rname|Rcastle]) :-
+  write_attr(Fdd, Rname, 'castle', Rcastle).
 
 write_regions(Fdd, [First|Rest]) :-
-  write(Fdd, 'region('), write(First), write(Fdd, ').'), nl(Fdd),
+  write_region(Fdd, First),
   write_regions(Fdd, Rest).
 write_regions(_, []).
+write_region(Fdd, [Rname|Rregion]) :-
+  write_attr(Fdd, Rname, 'region', Rregion).
 
 write_abroads(Fdd, [First|Rest]) :-
-  write(Fdd, 'goes_abroad('), write(First), write(Fdd, ').'), nl(Fdd),
+  write_abroad(Fdd, First),
   write_abroads(Fdd, Rest).
 write_abroads(_, []).
+write_abroad(Fdd, [Rname|Rabroad]) :-
+  write_attr(Fdd, Rname, 'goes_abroad', Rabroad).
 
 write_santiagos(Fdd, [First|Rest]) :-
-  write(Fdd, 'santiago('), write(First), write(Fdd, ').'), nl(Fdd),
+  write_santiago(Fdd, First),
   write_santiagos(Fdd, Rest).
 write_santiagos(_, []).
+write_santiago(Fdd, [Rname|Rsantiago]) :-
+  write_attr(Fdd, Rname, 'santiago', Rsantiago).
 
 restore_defaults :-
 	style_check(-discontiguous),

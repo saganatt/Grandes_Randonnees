@@ -1,19 +1,8 @@
 % ROUTES - Grandes Randonnees data base
 
-:- dynamic route/1.
-:- dynamic length/2.
-:- dynamic uphill/2.
-:- dynamic level/2.
-:- dynamic historic/2.
-:- dynamic attractions/2.
-:- dynamic castles/2.
-:- dynamic region/2.
-:- dynamic goes_abroad/2.
-:- dynamic santiago/2.
-
 % Loire valley
 route('gr3').
-length('gr3', 1273).
+rlength('gr3', 1273).
 uphill('gr3', 15350).
 level('gr3', 2).
 historic('gr3', yes).
@@ -25,9 +14,9 @@ santiago('gr3', no).
 
 % Atlantic - Mediterranean via Masif Central
 route('gr4').
-length('gr4', 1528).
+rlength('gr4', 1528).
 uphill('gr4', 36324).
-length_cat('gr4', long).
+rlength_cat('gr4', long).
 uphill_cat('gr4', mountainous).
 level('gr4', 3).
 historic('gr4', yes).
@@ -42,7 +31,7 @@ santiago('gr4', no).
 
 % Luxembourg - Nice
 route('gr5').
-length('gr5', 1497).
+rlength('gr5', 1497).
 uphill('gr5', 57795).
 level('gr5', 5).
 historic('gr5', yes).
@@ -55,13 +44,10 @@ region('gr5', alpes).
 region('gr5', mediterranean).
 goes_abroad('gr5', yes).
 santiago('gr5', no).
-%  historic(no),
-%  attractions(none),
-%  castles(no),
 
 % Jura - Saint-Tropez
 route('gr9').
-length('gr9', 958).
+rlength('gr9', 958).
 uphill('gr9', 38524).
 level('gr9', 4).
 historic('gr9', yes).
@@ -78,7 +64,7 @@ santiago('gr9', no).
 
 % Atlantic - Mediterranean via Pyrenees
 route('gr10').
-length('gr10', 917).
+rlength('gr10', 917).
 uphill('gr10', 55928).
 level('gr10', 5).
 historic('gr10', yes).
@@ -92,7 +78,7 @@ santiago('gr10', no).
 
 % Brittany
 route('gr34').
-length('gr34', 1987).
+rlength('gr34', 1987).
 uphill('gr34', 23369).
 level('gr34', 2).
 historic('gr34', yes).
@@ -106,7 +92,7 @@ santiago('gr34', no).
 
 % Santiago de Compostela pilgrim trail
 route('gr65').
-length('gr65', 773),
+rlength('gr65', 773).
 uphill('gr65', 15369).
 level('gr65', 3).
 historic('gr65', yes).
@@ -120,7 +106,7 @@ santiago('gr65', yes).
 
 % Paris city trail
 route('gr2024').
-length('gr2024', 50).
+rlength('gr2024', 50).
 uphill('gr2024', 677).
 level('gr2024', 1).
 historic('gr2024', yes).
