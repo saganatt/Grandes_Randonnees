@@ -16,6 +16,7 @@
 main :-
 	help,
   consult('routes_kb_utils.pl'),
+  consult('show_routes.pl'),
 	repeat,
 	write('> '),
 	read(X),
@@ -172,7 +173,7 @@ set_attr(_, _, _) :-
 remove_attr(yes, Rname, Rattr) :-
   remove_attr(Rname, Rattr),
   write('Attribute '), write(Rattr), write(' removed.'), nl.
-remove_attr(_, _, _) :- fail.
+remove_attr(_, _, _).
 remove_attr(Rname, 'length') :-
   retractall(rlength(Rname, _)).
 remove_attr(Rname, 'uphill') :-
@@ -195,117 +196,14 @@ remove_attr(_, _) :-
   write('Feature does not exist'),nl.
 
 save_changes :-
-	open('routes_kb_gen.pl', write, Fdd),
-	nl(Fdd),
-  write_routes(Fdd),
+	open('routes_gen_kb.pl', write, Fdd),
+  write(Fdd, '% ROUTES - Grandes Randonnees data base'), nl(Fdd), nl(Fdd),
+  findall(X, route(X), Rnames),
+  write_routes(Fdd, Rnames),
 	nl(Fdd),
   close(Fdd).
 save_changes :-
   write('Could not save the database.'), nl.
-
-write_routes(Fdd) :-
-  findall(X, route(X), Rnames),
-  findall([X, Y], rlength(X, Y), Rlengths),
-  findall([X, Y], uphill(X, Y), Ruphills),
-  findall([X, Y], level(X, Y), Rlevels),
-  findall([X, Y], historic(X, Y), Rhistorics),
-  findall([X, Y], attractions(X, Y), Rattractions),
-  findall([X, Y], castles(X, Y), Rcastles),
-  findall([X, Y], region(X, Y), Rregions),
-  findall([X, Y], goes_abroad(X, Y), Rabroads),
-  findall([X, Y], santiago(X, Y), Rsantiagos),
-  write_rnames(Fdd, Rnames),
-  write_lengths(Fdd, Rlengths),
-  write_uphills(Fdd, Ruphills),
-  write_levels(Fdd, Rlevels),
-  write_historics(Fdd, Rhistorics),
-  write_attractions(Fdd, Rattractions),
-  write_castles(Fdd, Rcastles),
-  write_regions(Fdd, Rregions),
-  write_abroads(Fdd, Rabroads),
-  write_santiagos(Fdd, Rsantiagos),
-  nl(Fdd).
-
-write_rnames(Fdd, [First|Rest]) :-
-  write(Fdd, 'route('),
-  write_string(Fdd, First),
-  write(Fdd, ')'), nl(Fdd),
-  write_rnames(Fdd, Rest).
-write_rnames(_, []).
-
-write_string(Fdd, Rname) :-
-  write(Fdd, '\''), write(Fdd, Rname), write(Fdd, '\'').
-write_attr(Fdd, Rname, Attr, [Value]) :-
-  write(Fdd, Attr),
-  write(Fdd, '('),
-  write_string(Fdd, Rname),
-  write(Fdd, ', '),
-  write(Fdd, Value),
-  write(Fdd, ').'),
-  nl(Fdd).
-
-write_lengths(Fdd, [First|Rest]) :-
-  write_length(Fdd, First),
-  write_lengths(Fdd, Rest).
-write_lengths(_, []).
-write_length(Fdd, [Rname|Rlength]) :-
-  write_attr(Fdd, Rname, 'rlength', Rlength).
-
-write_uphills(Fdd, [First|Rest]) :-
-  write_uphill(Fdd, First),
-  write_uphills(Fdd, Rest).
-write_uphills(_, []).
-write_uphill(Fdd, [Rname|Ruphill]) :-
-  write_attr(Fdd, Rname, 'uphill', Ruphill).
-
-write_levels(Fdd, [First|Rest]) :-
-  write_level(Fdd, First),
-  write_levels(Fdd, Rest).
-write_levels(_, []).
-write_level(Fdd, [Rname|Rlevel]) :-
-  write_attr(Fdd, Rname, 'level', Rlevel).
-
-write_historics(Fdd, [First|Rest]) :-
-  write_historic(Fdd, First),
-  write_historics(Fdd, Rest).
-write_historics(_, []).
-write_historic(Fdd, [Rname|Rhistoric]) :-
-  write_attr(Fdd, Rname, 'historic', Rhistoric).
-
-write_attractions(Fdd, [First|Rest]) :-
-  write_attraction(Fdd, First),
-  write_attractions(Fdd, Rest).
-write_attractions(_, []).
-write_attraction(Fdd, [Rname|Rattraction]) :-
-  write_attr(Fdd, Rname, 'attraction', Rattraction).
-
-write_castles(Fdd, [First|Rest]) :-
-  write_castle(Fdd, First),
-  write_castles(Fdd, Rest).
-write_castles(_, []).
-write_castle(Fdd, [Rname|Rcastle]) :-
-  write_attr(Fdd, Rname, 'castle', Rcastle).
-
-write_regions(Fdd, [First|Rest]) :-
-  write_region(Fdd, First),
-  write_regions(Fdd, Rest).
-write_regions(_, []).
-write_region(Fdd, [Rname|Rregion]) :-
-  write_attr(Fdd, Rname, 'region', Rregion).
-
-write_abroads(Fdd, [First|Rest]) :-
-  write_abroad(Fdd, First),
-  write_abroads(Fdd, Rest).
-write_abroads(_, []).
-write_abroad(Fdd, [Rname|Rabroad]) :-
-  write_attr(Fdd, Rname, 'goes_abroad', Rabroad).
-
-write_santiagos(Fdd, [First|Rest]) :-
-  write_santiago(Fdd, First),
-  write_santiagos(Fdd, Rest).
-write_santiagos(_, []).
-write_santiago(Fdd, [Rname|Rsantiago]) :-
-  write_attr(Fdd, Rname, 'santiago', Rsantiago).
 
 restore_defaults :-
 	style_check(-discontiguous),
@@ -314,18 +212,5 @@ restore_defaults :-
 	style_check(+discontiguous).
 restore_defaults :-
   write('Could not restore the default database.'),nl.
-
-show_route :-
-  write('Enter route name in single quotes: '),
-  read(Rname),
-  write_route(user_output, Rname).
-show_route :-
-  write('Could not display the route.'),nl.
-
-show_all_routes :-
-  findall(X, route(X), Rnames),
-  write_routes(user_output, Rnames).
-show_all_routes :-
-  write('Could not display routes.'),nl.
 
 :- main.

@@ -16,8 +16,6 @@ santiago('gr3', no).
 route('gr4').
 rlength('gr4', 1528).
 uphill('gr4', 36324).
-rlength_cat('gr4', long).
-uphill_cat('gr4', mountainous).
 level('gr4', 3).
 historic('gr4', yes).
 attractions('gr4', new_era).

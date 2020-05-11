@@ -5,6 +5,7 @@
 main :-
 	help,
   consult('routes_kb_utils.pl'),
+  consult('show_routes.pl'),
 	style_check(-discontiguous),
 	consult('routes_kb.pl'),
 	style_check(+discontiguous),
@@ -18,6 +19,8 @@ main :-
 
 do(help) :- help, !.
 do(solve) :- solve, !.
+do(show_route) :- show_route, !.
+do(show_all_routes) :- show_all_routes, !.
 do(quit) :- halt(0).
 do(end_of_file) :- halt(0).
 do(X) :-
@@ -32,6 +35,8 @@ help :-
 	write('OPTIONS:'), nl,
   write('help. - show this help'), nl,
   write('solve. - start reasoning'), nl,
+  write('show_route. - show all information about given route'), nl,
+  write('show_all_routes. - show all information about all routes'), nl,
   write('quit. - exit the program'), nl,
   write('<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'), nl.
 
